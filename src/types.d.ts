@@ -4,3 +4,8 @@ interface IMessage {
 	message: string;
 	datetime?: string;
 }
+
+interface IAlert {
+	type: string;
+	show: boolean;
+}

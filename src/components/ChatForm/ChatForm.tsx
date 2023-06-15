@@ -1,11 +1,12 @@
-import React, { FormEvent, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, FormControl, FormLabel, Input, InputLabel, TextareaAutosize } from "@mui/material";
 
 interface Props {
 	addMessage: (message: IMessage) => void;
+	showAlert: ({}: IAlert) => void;
 }
 
-const ChatForm: React.FC<Props> = ({ addMessage }) => {
+const ChatForm: React.FC<Props> = ({ addMessage, showAlert }) => {
 	const [formData, setFormData] = useState({
 		author: '',
 		message: ''
@@ -17,10 +18,13 @@ const ChatForm: React.FC<Props> = ({ addMessage }) => {
 		setFormData(prevState => ({ ...prevState, [name]: value }));
 	};
 
-	const onSubmit = (e: FormEvent) => {
+	const onSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
-		addMessage({ ...formData });
+		formData.author.length < 1 ? showAlert({ type: 'author', show: true }) :
+		formData.message.length < 1 ? showAlert({ type: 'message', show: true }) :
+			addMessage({ ...formData });
+			setFormData(prevState => ({ ...prevState, message: '' }));
 	};
 
 	return (
