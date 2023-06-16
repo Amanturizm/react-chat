@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Button, FormControl, FormLabel, Input, InputLabel, TextareaAutosize } from "@mui/material";
+import React, { useState } from 'react';
+import { Button, FormControl, FormLabel, TextareaAutosize } from "@mui/material";
 
 interface Props {
 	addMessage: (message: IMessage) => void;
@@ -12,13 +12,13 @@ const ChatForm: React.FC<Props> = ({ addMessage, showAlert }) => {
 		message: ''
 	});
 
-	const changeFormData = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-		const { name, value } = e.target;
+	const changeFormData = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+		const { name, value }: { name: string, value: string } = e.target;
 
 		setFormData(prevState => ({ ...prevState, [name]: value }));
 	};
 
-	const onSubmit = (e: React.FormEvent) => {
+	const onSubmit = (e: React.FormEvent): void => {
 		e.preventDefault();
 
 		formData.author.length < 1 ? showAlert('author') :

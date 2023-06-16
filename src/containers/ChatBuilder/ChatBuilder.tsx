@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Container } from "@mui/material";
+import ChatForm from "../../components/ChatForm/ChatForm";
 import ChatBody from "../../components/ChatBody/ChatBody";
 import ChatBodyItem from "../../components/ChatBody/ChatBodyItem/ChatBodyItem";
-import ChatForm from "../../components/ChatForm/ChatForm";
 import axios from "axios";
 import './Alert.css';
 
@@ -21,8 +21,8 @@ const ChatBuilder = () => {
 
 		(async () => {
 			try {
-				const { data } = await axios.get(url);
-				lastDate = data[data.length - 1].datetime;
+				const { data }: {data: IMessage[]} = await axios.get(url);
+				lastDate = data[data.length - 1].datetime!;
 				setMessages(data);
 			} catch (e) {
 				console.error(e);
@@ -35,12 +35,13 @@ const ChatBuilder = () => {
 		const interval = setInterval(() => {
 			(async () => {
 				try {
-					const { data } = await axios.get(`${url}?datetime=${lastDate}`);
+					const { data }: { data: IMessage[] } = await axios.get(`${url}?datetime=${lastDate}`);
 
 					if (data.length > 0 && data[data.length - 1].datetime !== lastDate) {
-						lastDate = data[data.length - 1].datetime;
+						lastDate = data[data.length - 1].datetime!;
+
 						setMessages(prevState => {
-							const newMessages = [ ...prevState ];
+							const newMessages: IMessage[] = [ ...prevState ];
 							newMessages.splice(0, data.length);
 							newMessages.push(...data);
 							return newMessages;
@@ -49,8 +50,7 @@ const ChatBuilder = () => {
 				} catch (e) {
 					console.error(e);
 				}
-			})()
-				.catch(err => console.error(err));
+			})().catch(err => console.error(err));
 		}, 3000);
 
 		return () => {
@@ -61,6 +61,7 @@ const ChatBuilder = () => {
 	const showAlert = (type: string): void => {
 		if (!isAlert.show) {
 		  setIsAlert({ type, show: true });
+
 			setTimeout(() => {
 				setIsAlert({ type: '', show: false });
 			}, 5000);
@@ -77,10 +78,10 @@ const ChatBuilder = () => {
 			.catch(err => console.error(err));
 	};
 
-	const alert = (
+	const alert: React.ReactNode = (
 		<Alert
 			style={{ animation: 'showAndHideAlert 5s linear' }}
-			className="position-absolute top-0 end-0 mt-4 mx-4"
+			className="position-fixed top-0 end-0 mt-4 mx-4"
 			variant="filled"
 			severity="error"
 		>
@@ -89,7 +90,7 @@ const ChatBuilder = () => {
 	);
 
 	return (
-		<Container sx={{ width: '45%' }} className="bg-dark rounded my-5 p-3">
+		<Container sx={{ width: '45%' }} className="bg-dark rounded my-5 p-4">
 			{ isAlert.show && alert }
 			<ChatBody messages={messages} isPreloader={isPreloader} />
 			<ChatForm addMessage={addMessage} showAlert={showAlert} />
