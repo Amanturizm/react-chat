@@ -1,20 +1,32 @@
-import { Container } from "@mui/material";
 import React from 'react';
+import { Container } from "@mui/material";
 import ChatBodyItem from "./ChatBodyItem/ChatBodyItem";
+import './ChatBodyScrollBar.css';
+import '../../Preloader.css';
 
 interface Props {
 	messages: IMessage[];
+	isPreloader: boolean;
 }
 
-const ChatBody: React.FC<Props> = ({ messages }) => {
+const ChatBody: React.FC<Props> = ({ messages, isPreloader }) => {
 	return (
-		<Container
-			sx={{ height: 300 }}
-			className="d-flex flex-column gap-3 overflow-y-scroll border border-1 border-black rounded p-3 mb-3">
+		<div id="chat-body">
 			{
-				messages.map(message => <ChatBodyItem key={message.id} message={message} />)
+				isPreloader ?
+					<div id="preloader">
+						<div id="loader"></div>
+					</div>
+					: null
 			}
-		</Container>
+			<Container
+				sx={{ height: 300 }}
+				className="overflow-y-scroll d-flex flex-column gap-3 border border-1 border-black rounded p-3 mb-3">
+				{
+					messages.map(message => <ChatBodyItem key={message._id} message={message} />)
+				}
+			</Container>
+		</div>
 	);
 };
 
