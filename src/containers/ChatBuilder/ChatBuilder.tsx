@@ -1,4 +1,3 @@
-import { isIS } from "@mui/material/locale";
 import React, { useEffect, useState } from 'react';
 import { Alert, Container } from "@mui/material";
 import ChatBody from "../../components/ChatBody/ChatBody";
@@ -15,30 +14,66 @@ const ChatBuilder = () => {
 	const [isPreloader, setIsPreloader] = useState<boolean>(false);
 
 	useEffect(() => {
+		setMessages([]);
 		setIsPreloader(true);
+
+		let lastDate: string = '';
+
 		(async () => {
-			const { data } = await axios.get(url);
-			setMessages(data);
-			console.log(data);
+			try {
+				const { data } = await axios.get(url);
+				lastDate = data[data.length - 1].datetime;
+				setMessages(data);
+			} catch (e) {
+				console.error(e);
+			} finally {
+				setIsPreloader(false);
+			}
 		})()
-			.catch(err => console.error(err))
-			.finally(() => setIsPreloader(false));
+			.catch(err => console.error(err));
+
+		const interval = setInterval(() => {
+			(async () => {
+				try {
+					const { data } = await axios.get(`${url}?datetime=${lastDate}`);
+
+					if (data.length > 0 && data[data.length - 1].datetime !== lastDate) {
+						lastDate = data[data.length - 1].datetime;
+						setMessages(prevState => {
+							const newMessages = [ ...prevState ];
+							newMessages.splice(0, data.length);
+							newMessages.push(...data);
+							return newMessages;
+						});
+					}
+				} catch (e) {
+					console.error(e);
+				}
+			})()
+				.catch(err => console.error(err));
+		}, 3000);
+
+		return () => {
+			clearInterval(interval);
+		}
 	}, []);
 
-	const showAlert = (response: IAlert): void => {
-		setIsAlert(response);
-		setTimeout(() => {
-			setIsAlert({ type: '' , show: false });
-		}, 5000);
+	const showAlert = (type: string): void => {
+		if (!isAlert.show) {
+		  setIsAlert({ type, show: true });
+			setTimeout(() => {
+				setIsAlert({ type: '', show: false });
+			}, 5000);
+		}
 	};
 
-	const addMessage = (message: IMessage) => {
+	const addMessage = async (message: IMessage) => {
 		const data = new URLSearchParams();
 		data.set('message', message.message);
 		data.set('author', message.author);
 
-		axios
-			.post(url, { body: data })
+		await axios
+			.post(url, data)
 			.catch(err => console.error(err));
 	};
 
@@ -54,8 +89,8 @@ const ChatBuilder = () => {
 	);
 
 	return (
-		<Container maxWidth="sm" className="border border-2 border-black rounded my-5 p-3">
-			{ isAlert.show ? alert : null }
+		<Container sx={{ width: '45%' }} className="bg-dark rounded my-5 p-3">
+			{ isAlert.show && alert }
 			<ChatBody messages={messages} isPreloader={isPreloader} />
 			<ChatForm addMessage={addMessage} showAlert={showAlert} />
 		</Container>

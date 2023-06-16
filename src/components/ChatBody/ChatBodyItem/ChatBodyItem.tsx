@@ -1,5 +1,5 @@
-import { Avatar, Box, Card, Divider, Stack, Typography } from "@mui/material";
-import React, {useEffect} from 'react';
+import React from 'react';
+import { Avatar, Box, Card, Stack, Typography } from "@mui/material";
 
 interface Props {
 	message: IMessage;
