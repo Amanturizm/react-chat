@@ -52,5 +52,4 @@ const ChatBodyItem: React.FC<Props> = ({ message }) => {
 		</Card>
 	);
 };
-
 export default ChatBodyItem;

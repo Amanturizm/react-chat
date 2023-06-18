@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Container } from "@mui/material";
 import ChatForm from "../../components/ChatForm/ChatForm";
 import ChatBody from "../../components/ChatBody/ChatBody";
-import ChatBodyItem from "../../components/ChatBody/ChatBodyItem/ChatBodyItem";
 import axios from "axios";
 import './Alert.css';
 
@@ -30,7 +29,8 @@ const ChatBuilder = () => {
 				setIsPreloader(false);
 			}
 		})()
-			.catch(err => console.error(err));
+			.catch(err => console.error(err))
+			.finally(() => setIsPreloader(false));
 
 		const interval = setInterval(() => {
 			(async () => {
@@ -42,9 +42,20 @@ const ChatBuilder = () => {
 
 						setMessages(prevState => {
 							const newMessages: IMessage[] = [ ...prevState ];
-							newMessages.splice(0, data.length);
-							newMessages.push(...data);
-							return newMessages;
+
+							const filteredData: IMessage[] = [];
+
+							data.forEach(item => {
+								let isItem = false;
+								newMessages.forEach(message => {
+									isItem = item._id === message._id ? false : true;
+								});
+								if (isItem) filteredData.push(item);
+							});
+
+							newMessages.splice(0, filteredData.length);
+
+							return [ ...newMessages, ...filteredData ];
 						});
 					}
 				} catch (e) {
